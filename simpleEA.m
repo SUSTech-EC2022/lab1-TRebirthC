@@ -29,25 +29,77 @@ fitness_pop=[];% record the best fitness in current population
 %% Below starting your code
 
 % Initialise a population
-%% TODO
+pop_size = 4;
+lenGene = 5;
+population = randi([0,31],10,1);
+genotypes = dec2bin(population);
 
 
 % Evaluate the initial population
-%% TODO
+fitness = objective(population);
+for i = 1:pop_size
+    if fitness(i) > bestSoFarFit
+        bestSoFarFit = fitness(i);
+        bestSoFarSolution = population(i,:);
+    end
+end
+nbEval = nbEval + pop_size;
+nbGen =  nbGen + 1;
+sorted_fitness = sort(fitness,'descend');
+fitness_pop = sorted_fitness(1);
+fitness_gen = bestSoFarFit;
+solution_gen = bestSoFarSolution;
 
 % Start the loop
 while (nbEval<T) 
 % Reproduction (selection, crossver)
-%% TODO
+offspringGenes = [];
+crossoverPoint = randi(lenGene-1);
+offspringGenes = [offspringGenes; [genotypes(1,1:crossoverPoint), genotypes(2,crossoverPoint+1:end)]];
+offspringGenes = [offspringGenes; [genotypes(2,1:crossoverPoint), genotypes(1,crossoverPoint+1:end)]];
+offspringGenes = [offspringGenes; [genotypes(3,1:crossoverPoint), genotypes(4,crossoverPoint+1:end)]];
+offspringGenes = [offspringGenes; [genotypes(4,1:crossoverPoint), genotypes(3,crossoverPoint+1:end)]];
 
 % Mutation
-%% TODO
+MP = 0.1;
+for i = 1:pop_size
+    for j = 1:lenGene
+        if rand() < MP
+            % offspringGenes(i) = dec2bin(abs(2^j-offspringGenes(i)));
+            if offspringGenes(i,j) == '1'
+                offspringGenes(i,j) = '0';
+            else
+                offspringGenes(i,j) = '1';
+            end
+        end
+    end
+end
+genotypes = offspringGenes;
+population = bin2dec(genotypes);
+fitness = objective(population);
+for i = 1:pop_size
+    if fitness(i) > bestSoFarFit
+        bestSoFarFit = fitness(i);
+        bestSoFarSolution = population(i,:);
+    end
+end
+nbEval = nbEval + pop_size;
+nbGen = nbGen + 1;
+sorted_fitness = sort(fitness,1,'descend');
+fitness_pop = [fitness_pop,sorted_fitness(1)];
+fitness_gen = horzcat(fitness_gen, bestSoFarFit);
+solution_gen = horzcat(solution_gen, bestSoFarSolution);
 
+end
 
-bestSoFarFit
-bestSoFarSolution
+bestSoFarFit;
+bestSoFarSolution;
 
+figure,plot(1:nbGen,fitness_gen,'b') 
+title('Fitness\_Gen')
 
+figure,plot(1:nbGen,solution_gen,'b') 
+title('Solution\_Gen')
 
-
-
+figure,plot(1:nbGen,fitness_pop,'b') 
+title('Fitness\_Pop')
